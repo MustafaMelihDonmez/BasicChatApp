@@ -1,39 +1,52 @@
-import 'package:chatapp/Pages/RegisterPage.dart';
+import 'package:chatapp/Pages/LoginPage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../Services/auth_service.dart';
-import 'HomePage.dart';
 
+class RegisterPage extends StatefulWidget {
 
-class LoginPage extends StatefulWidget {
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
 
-  void signIn() async {
+  void signUp() async {
     final authService = Provider.of<AuthService>(context, listen: false);
 
-    String email = emailController.text;
-    String password = passwordController.text;
-
     try {
-      User? user = await authService.signInWithEmailandPassword(email, password);
-
-      if (user != null) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => HomePage()),
+      if (emailController.text == "") {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Email is missing!")),
+        );
+      } else if (passwordController.text == "") {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Password is missing!")),
+        );
+      } else if(confirmPasswordController.text != passwordController.text){
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Passwords don't match!")),
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Some error occurred")),
-        );
+        User? user = await authService.signUpWithEmailandPassword(emailController.text, passwordController.text);
+        if (user != null) {
+          emailController.clear();
+          passwordController.clear();
+          confirmPasswordController.clear();
+
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Your account is successfully created! Now you can login and access the app."))
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Some error occurred")),
+          );
+        }
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -46,7 +59,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Login"),
+        title: Text("Sign Up"),
         centerTitle: true,
         automaticallyImplyLeading: false,
       ),
@@ -57,15 +70,7 @@ class _LoginPageState extends State<LoginPage> {
             padding: const EdgeInsets.symmetric(horizontal: 50.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.chat_rounded,
-                  size: 150,
-                  color: Colors.blueGrey.shade400,
-                ),
-                const SizedBox(
-                  height: 50,
-                ),
+              children:[
                 TextField(
                   controller: emailController,
                   obscureText: false,
@@ -80,13 +85,21 @@ class _LoginPageState extends State<LoginPage> {
                   decoration: const InputDecoration(hintText: "Password"),
                 ),
                 const SizedBox(
-                  height: 30,
+                  height: 10,
+                ),
+                TextField(
+                  controller: confirmPasswordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(hintText: "Confirm password"),
+                ),
+                const SizedBox(
+                  height: 50,
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    signIn();
+                    signUp();
                   },
-                  child: Text("Login"),
+                  child: Text("Sign Up"),
                   style: ButtonStyle(
                     padding: MaterialStateProperty.all<EdgeInsets>(
                       const EdgeInsets.fromLTRB(30, 15, 30, 15),
@@ -95,9 +108,9 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 TextButton(
                     onPressed: (){
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RegisterPage()));
+                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage()));
                     },
-                    child: Text("Haven't created an account? Sign up now!"))
+                    child: Text("Already have an account? Login now!"))
               ],
             ),
           ),
