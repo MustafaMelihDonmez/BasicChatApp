@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import '../Services/auth_service.dart';
 
 class RegisterPage extends StatefulWidget {
-
   @override
   State<RegisterPage> createState() => _RegisterPageState();
 }
@@ -28,19 +27,27 @@ class _RegisterPageState extends State<RegisterPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Password is missing!")),
         );
-      } else if(confirmPasswordController.text != passwordController.text){
+      } else if (confirmPasswordController.text != passwordController.text) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Passwords don't match!")),
         );
       } else {
-        User? user = await authService.signUpWithEmailandPassword(emailController.text, passwordController.text);
+        User? user = await authService.signUpWithEmailandPassword(
+          emailController.text,
+          passwordController.text,
+        );
         if (user != null) {
           emailController.clear();
           passwordController.clear();
           confirmPasswordController.clear();
 
           ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("Your account is successfully created! Now you can login and access the app."))
+            SnackBar(content: Text("Your account is successfully created! Now you can login and access the app.")),
+          );
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => LoginPage()),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -70,7 +77,7 @@ class _RegisterPageState extends State<RegisterPage> {
             padding: const EdgeInsets.symmetric(horizontal: 50.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children:[
+              children: [
                 TextField(
                   controller: emailController,
                   obscureText: false,
@@ -96,9 +103,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   height: 50,
                 ),
                 ElevatedButton(
-                  onPressed: () {
-                    signUp();
-                  },
+                  onPressed: signUp,
                   child: Text("Sign Up"),
                   style: ButtonStyle(
                     padding: MaterialStateProperty.all<EdgeInsets>(
@@ -107,10 +112,14 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ),
                 TextButton(
-                    onPressed: (){
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage()));
-                    },
-                    child: Text("Already have an account? Login now!"))
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginPage()),
+                    );
+                  },
+                  child: Text("Already have an account? Login now!"),
+                ),
               ],
             ),
           ),
