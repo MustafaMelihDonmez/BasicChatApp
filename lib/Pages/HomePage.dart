@@ -38,41 +38,101 @@ class _HomePageState extends State<HomePage> {
           children: <Widget>[
             DrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.blue,
+                color: Colors.blueGrey.shade600,
               ),
-              child: Text('Chat App', style: TextStyle(color: Colors.white, fontSize: 24),
+              child: Text(
+                'Chat App',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold
+                ),
               ),
             ),
-            ListTile(
-              leading: Icon(Icons.person),
-              title: Text('Profile'),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage()));
-              },
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 4,
+                      offset: Offset(2, 2),
+                    ),
+                  ],
+                ),
+                child: ListTile(
+                  leading: Icon(Icons.person, color: Colors.blueGrey),
+                  title: Text('Profile'),
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage()));
+                  },
+                ),
+              ),
             ),
-            ListTile(
-              leading: Icon(Icons.people),
-              title: Text('Friends'),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => FriendsPage()));
-              },
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 4,
+                      offset: Offset(2, 2),
+                    ),
+                  ],
+                ),
+                child: ListTile(
+                  leading: Icon(Icons.people, color: Colors.blueGrey),
+                  title: Text('Friends'),
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => FriendsPage()));
+                  },
+                ),
+              ),
             ),
-            ListTile(
-              leading: Icon(Icons.exit_to_app),
-              title: Text('Sign Out'),
-              onTap: () {
-                _firebaseAuth.signOut();
-                Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
-              },
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 4,
+                      offset: Offset(2, 2),
+                    ),
+                  ],
+                ),
+                child: ListTile(
+                  leading: Icon(Icons.exit_to_app, color: Colors.blueGrey),
+                  title: Text('Sign Out'),
+                  onTap: () {
+                    _firebaseAuth.signOut();
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage()));
+                  },
+                ),
+              ),
             ),
           ],
         ),
       ),
+
       appBar: AppBar(
-        title: Text('Chat'),
+        title: Text('General Chat Room'),
+        centerTitle: true,
+        backgroundColor: Colors.grey.shade800,
       ),
       body: Column(
         children: [
+          SizedBox(
+            height: 10,
+          ),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: chatService.getMessages(),
@@ -92,23 +152,35 @@ class _HomePageState extends State<HomePage> {
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: messageController,
-                    decoration: InputDecoration(
-                      hintText: 'Enter a message...',
+
+          Container(
+            color: Colors.grey.shade400,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: messageController,
+                      decoration: InputDecoration(
+                        hintText: 'Enter a message...',
+                        filled: true,
+                        fillColor: Colors.grey[200],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      ),
                     ),
                   ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.send),
-                  onPressed: sendMessage,
-                ),
-              ],
+                  SizedBox(width: 10),
+                  IconButton(
+                    icon: Icon(Icons.send, color: Colors.blue.shade600),
+                    onPressed: sendMessage,
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -116,30 +188,58 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-Widget _buildMessageBox(QueryDocumentSnapshot<Object?> message){
+
+Widget _buildMessageBox(QueryDocumentSnapshot<Object?> message) {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
+  bool isCurrentUser = message['sender'] == _firebaseAuth.currentUser!.email;
+
   return Container(
-    margin: EdgeInsets.all(10),
+    margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
     child: Column(
-      crossAxisAlignment: (message['sender'] ==_firebaseAuth.currentUser!.email)
-          ?CrossAxisAlignment.end
-          :CrossAxisAlignment.start,
+      crossAxisAlignment: isCurrentUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
       children: [
-        Text(
-          message['text'],
-          style: TextStyle(
-              fontSize: 16
+        ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: 350,
+          ),
+          child: Container(
+            padding: EdgeInsets.fromLTRB(15, 10, 15, 10),
+            decoration: BoxDecoration(
+              color: isCurrentUser ? Colors.blue[100] : Colors.grey[200],
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+                bottomLeft: isCurrentUser ? Radius.circular(20) : Radius.circular(0),
+                bottomRight: isCurrentUser ? Radius.circular(0) : Radius.circular(20),
+              ),
             ),
-        ),
-        Text(
-          message['sender'],
-          style: TextStyle(
-              color: Colors.grey.shade500,
-              fontSize: 12
+            child: Column(
+              crossAxisAlignment: isCurrentUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              children: [
+                Text(
+                  message['text'],
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: isCurrentUser ? Colors.black : Colors.black,
+                  ),
+                ),
+                SizedBox(height: 5),
+                Text(
+                  message['sender'],
+                  style: TextStyle(
+                    color: Colors.grey.shade500,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ],
     ),
   );
 }
+
+
+

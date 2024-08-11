@@ -22,7 +22,11 @@ class _FriendsPageState extends State<FriendsPage> {
       DocumentSnapshot userDoc = await _firestore.collection('users').doc(uid).get();
       setState(() {
         if (userDoc.exists) {
-          _email = userDoc['email'];
+          if (userDoc['email'] != _firebaseAuth.currentUser!.email){
+            _email = userDoc['email'];
+          } else {
+            _email = "It's you :)";
+          }
         } else {
           _email = 'No user found';
         }
@@ -38,11 +42,12 @@ class _FriendsPageState extends State<FriendsPage> {
   Widget build(BuildContext context) {
     final chatService = Provider.of<ChatService>(context, listen: false);
 
-
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: Text("Friends"),
+        title: Text('Friends'),
+        centerTitle: true,
+        backgroundColor: Colors.grey.shade800,
       ),
       body: Center(
         child: Padding(
@@ -93,15 +98,20 @@ class _FriendsPageState extends State<FriendsPage> {
                             style: TextStyle(fontSize: 16),
                           ),
                         ),
-                        Expanded(
-                          flex: 1,
+                        if (_email.isNotEmpty && _email != 'No user found' && _email != 'Error retrieving user' && _email!= "It's you :)")
+                          Expanded(
+                            flex: 1,
                             child: ElevatedButton(
-                              onPressed: (){
-                                chatService.addFriend(_firebaseAuth.currentUser!.uid, _uidController.text.trim());
+                              onPressed: () async {
+                                await chatService.addFriend(_firebaseAuth.currentUser!.uid, _uidController.text.trim());
+                                setState(() {
+                                  _email = '';
+                                  _uidController.clear();
+                                });
                               },
                               child: Text("Add Friend"),
-                            )
-                        ),
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -111,34 +121,58 @@ class _FriendsPageState extends State<FriendsPage> {
                 height: 20,
               ),
               FutureBuilder(
-                  future: chatService.getFriends(_firebaseAuth.currentUser!.uid),
-                  builder: (context, snapshot) {
-                    if(snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Center(child: Text("Error: ${snapshot.error}"));
-                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return Center(child: Text("No friends found."));
-                    } else {
-                      List<Map<String, String>> friends = snapshot.data!;
-                      return ListView.builder(
-                        shrinkWrap: true,
-                          itemCount: friends.length,
-                          itemBuilder: (context, index) {
-                            return ListTile(
-                              title: Text(friends[index]['friend_email'] ?? ''),
-                              trailing: IconButton(
-                                icon: Icon(Icons.chat),
-                                onPressed: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => PrivateChatPage(_firebaseAuth.currentUser!.uid, friends[index]['friend_uid'] ?? '', friends[index]['friend_email'] ?? '')));
-                                },
+                future: chatService.getFriends(_firebaseAuth.currentUser!.uid),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text("Error: ${snapshot.error}"));
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return Center(child: Text("No friends found."));
+                  } else {
+                    List<Map<String, String>> friends = snapshot.data!;
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: friends.length,
+                      itemBuilder: (context, index) {
+                        return Container(
+                          margin: EdgeInsets.symmetric(vertical: 5),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 4,
+                                offset: Offset(2, 2),
                               ),
-                            );
-                          }
-                      );
-                    }
+                            ],
+                          ),
+                          child: ListTile(
+                            tileColor: Colors.grey.shade200,
+                            title: Text(friends[index]['friend_email'] ?? ''),
+                            trailing: IconButton(
+                              icon: Icon(Icons.chat),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => PrivateChatPage(
+                                      _firebaseAuth.currentUser!.uid,
+                                      friends[index]['friend_uid'] ?? '',
+                                      friends[index]['friend_email'] ?? '',
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                    );
                   }
-              )
+                },
+              ),
             ],
           ),
         ),
@@ -146,4 +180,3 @@ class _FriendsPageState extends State<FriendsPage> {
     );
   }
 }
-

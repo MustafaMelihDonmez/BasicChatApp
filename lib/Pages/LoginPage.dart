@@ -48,6 +48,7 @@ class _LoginPageState extends State<LoginPage> {
       appBar: AppBar(
         title: Text("Login"),
         centerTitle: true,
+        backgroundColor: Colors.grey.shade800,
         automaticallyImplyLeading: false,
       ),
       resizeToAvoidBottomInset: false,
@@ -86,8 +87,9 @@ class _LoginPageState extends State<LoginPage> {
                   onPressed: () {
                     signIn();
                   },
-                  child: Text("Login"),
+                  child: Text("Login", style: TextStyle(color: Colors.black54),),
                   style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Colors.grey.shade300),
                     padding: MaterialStateProperty.all<EdgeInsets>(
                       const EdgeInsets.fromLTRB(30, 15, 30, 15),
                     ),
@@ -97,7 +99,7 @@ class _LoginPageState extends State<LoginPage> {
                     onPressed: (){
                       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RegisterPage()));
                     },
-                    child: Text("Haven't created an account? Sign up now!"))
+                    child: Text("Haven't created an account? Sign up now!", style: TextStyle(color: Colors.red.shade300),))
               ],
             ),
           ),

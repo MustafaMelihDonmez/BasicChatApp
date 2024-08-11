@@ -68,6 +68,7 @@ class _RegisterPageState extends State<RegisterPage> {
       appBar: AppBar(
         title: Text("Sign Up"),
         centerTitle: true,
+        backgroundColor: Colors.grey.shade800,
         automaticallyImplyLeading: false,
       ),
       resizeToAvoidBottomInset: false,
@@ -104,8 +105,9 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 ElevatedButton(
                   onPressed: signUp,
-                  child: Text("Sign Up"),
+                  child: Text("Sign Up", style: TextStyle(color: Colors.black54),),
                   style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Colors.grey.shade300),
                     padding: MaterialStateProperty.all<EdgeInsets>(
                       const EdgeInsets.fromLTRB(30, 15, 30, 15),
                     ),
@@ -118,7 +120,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       MaterialPageRoute(builder: (context) => LoginPage()),
                     );
                   },
-                  child: Text("Already have an account? Login now!"),
+                  child: Text("Already have an account? Login now!", style: TextStyle(color: Colors.red.shade300),),
                 ),
               ],
             ),

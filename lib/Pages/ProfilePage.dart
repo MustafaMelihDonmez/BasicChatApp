@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class ProfilePage extends StatefulWidget {
-
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
@@ -15,36 +14,67 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Profile"),
+        title: Text('Profile'),
+        centerTitle: true,
+        backgroundColor: Colors.grey.shade800,
+        elevation: 0,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Row(
-              children: [
-                CircleAvatar(
-                  child: Icon(Icons.person, size: 60),
-                  radius: 40,
-                ),
-                Column(
+            Center(
+              child: CircleAvatar(
+                backgroundColor: Colors.teal.shade200,
+                child: Icon(Icons.person, size: 60, color: Colors.white),
+                radius: 50,
+              ),
+            ),
+            SizedBox(height: 20),
+            Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0),
+              ),
+              elevation: 4,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      margin: EdgeInsets.symmetric(horizontal: 10),
-                      padding: EdgeInsets.all(10),
-                      color: Colors.grey.shade200,
-                      width: 250,
-                      child: Text("E-mail: ${_firebaseAuth.currentUser!.email}"),
+                    Text(
+                      "E-mail",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.teal.shade800,
+                      ),
                     ),
+                    SizedBox(height: 8),
+                    Text(
+                      _firebaseAuth.currentUser!.email ?? 'No email found',
+                      style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
+                    ),
+                    SizedBox(height: 16),
                     TextButton(
-                        onPressed: (){
-                          Clipboard.setData(ClipboardData(text: _firebaseAuth.currentUser!.uid));
-                        },
-                        child: Text("Get UID")
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(text: _firebaseAuth.currentUser!.uid));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("UID copied to clipboard")),
+                        );
+                      },
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.teal,
+                        primary: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                      child: Text("Copy UID"),
                     ),
                   ],
                 ),
-              ],
+              ),
             ),
           ],
         ),
@@ -52,3 +82,4 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 }
+

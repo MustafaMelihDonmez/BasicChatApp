@@ -36,9 +36,14 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.friendEmail),
+        centerTitle: true,
+        backgroundColor: Colors.grey.shade800,
       ),
       body: Column(
         children: [
+          SizedBox(
+            height: 10,
+          ),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: chatService.getPrivateChat(widget.userUid, widget.friendUid),
@@ -58,23 +63,34 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: messageController,
-                    decoration: InputDecoration(
-                      hintText: 'Enter a message...',
+          Container(
+            color: Colors.grey.shade400,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: messageController,
+                      decoration: InputDecoration(
+                        hintText: 'Enter a message...',
+                        filled: true,
+                        fillColor: Colors.grey[200],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      ),
                     ),
                   ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.send),
-                  onPressed: sendMessage,
-                ),
-              ],
+                  SizedBox(width: 10),
+                  IconButton(
+                    icon: Icon(Icons.send, color: Colors.blue.shade600),
+                    onPressed: sendMessage,
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -86,24 +102,48 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
 Widget _buildMessageBox(QueryDocumentSnapshot<Object?> message){
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
+  bool isCurrentUser = message['sender'] == _firebaseAuth.currentUser!.email;
+
   return Container(
-    margin: EdgeInsets.all(10),
+    margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
     child: Column(
-      crossAxisAlignment: (message['sender'] ==_firebaseAuth.currentUser!.email)
-          ?CrossAxisAlignment.end
-          :CrossAxisAlignment.start,
+      crossAxisAlignment: isCurrentUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
       children: [
-        Text(
-          message['text'],
-          style: TextStyle(
-              fontSize: 16
+        ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: 350,
           ),
-        ),
-        Text(
-          message['sender'],
-          style: TextStyle(
-              color: Colors.grey.shade500,
-              fontSize: 12
+          child: Container(
+            padding: EdgeInsets.fromLTRB(15, 10, 15, 10),
+            decoration: BoxDecoration(
+              color: isCurrentUser ? Colors.blue[100] : Colors.grey[200],
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+                bottomLeft: isCurrentUser ? Radius.circular(20) : Radius.circular(0),
+                bottomRight: isCurrentUser ? Radius.circular(0) : Radius.circular(20),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: isCurrentUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              children: [
+                Text(
+                  message['text'],
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: isCurrentUser ? Colors.black : Colors.black,
+                  ),
+                ),
+                SizedBox(height: 5),
+                Text(
+                  message['sender'],
+                  style: TextStyle(
+                    color: Colors.grey.shade500,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ],
